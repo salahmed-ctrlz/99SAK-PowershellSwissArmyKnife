@@ -97,5 +97,6 @@ Then run the script again.
 ## Credits
 
 - Developer: Salahuddin (`https://github.com/salahmed-ctrlz`)
+- LinkedIn: Salah Eddine Medkour (`https://www.linkedin.com/in/salah-eddine-medkour/`)
 - Project: Powershell Swiss Army Knife (99SAK)
 
