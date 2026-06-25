@@ -202,6 +202,15 @@ All module files must remain in the `modules\` subfolder alongside `99SAK.ps1`. 
 
 ## Changelog
 
+### v2.1
+- Safety Workflows fully implemented (5 guided workflows)
+- W1: Deep System Health Check — OS, disk SMART, SFC verify, DISM, RAM events, top processes, firewall, disk space
+- W2: Full System Repair — SFC + DISM RestoreHealth + verify, reboot advisory
+- W3: Network Full Reset — Winsock + TCP/IP reset, DNS flush, adapter renew, connectivity test
+- W4: Malware Triage — startup entries, listening ports vs bad-ports, hosts file, unsigned processes, recent installs, Defender scan
+- W5: Safety Backup — restore point, registry, network config, programs list, firewall rules, hosts file — all to Desktop
+- All workflows: auto restore point, step-by-step output, exportable .txt report
+
 ### v2.0
 - Modular architecture: UI, Logging, Safety, Workflows modules
 - Upgraded launcher with `fltMC.exe` elevation (reliable on all Windows SKUs and domain machines)
