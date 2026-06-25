@@ -770,9 +770,10 @@ function Sec-UACInfo {
         0 = 'Never notify'
         1 = 'Notify only for app changes (no dimming)'
         2 = 'Notify for app changes (dimming on)'
-        5 = 'Default — notify only when apps try to make changes'
+        5 = 'Default - notify only when apps try to make changes'
     }
-    Write-Host ("  Current UAC level: {0} — {1}" -f $val, ($levels[$val] ?? 'Unknown')) -ForegroundColor Gray
+    $levelDesc = if ($levels.ContainsKey($val)) { $levels[$val] } else { 'Unknown' }
+    Write-Host ("  Current UAC level: {0} - {1}" -f $val, $levelDesc) -ForegroundColor Gray
     Write-Host '  To change, open User Account Control settings:' -ForegroundColor DarkGray
     $open = Read-InputWithBossKey 'Open UAC settings? (Y/N)'
     if ($open.ToUpper() -eq 'Y') { Start-Process useraccountcontrolsettings.exe }
@@ -1266,7 +1267,7 @@ function Debloat-RemoveByCategory {
                 Remove-AppxPackage -Package $pkg.PackageFullName -ErrorAction Stop
                 Write-StatusLine ("Removed: {0}" -f $app.name) 'OK'
             } catch {
-                Write-StatusLine ("Failed: {0} — {1}" -f $app.name, $_.Exception.Message) 'WARN'
+                Write-StatusLine ("Failed: {0} - {1}" -f $app.name, $_.Exception.Message) 'WARN'
             }
         } else {
             Write-StatusLine ("Not installed: {0}" -f $app.name) 'INFO'
@@ -1290,7 +1291,7 @@ function Debloat-RemoveOneDrive {
             Start-Process $odu -ArgumentList '/uninstall' -Wait
             Write-StatusLine 'OneDrive uninstalled' 'OK'
         } else {
-            Write-StatusLine 'OneDrive setup not found — may already be removed' 'WARN'
+            Write-StatusLine 'OneDrive setup not found - may already be removed' 'WARN'
         }
 
         # Remove AppX package
@@ -1335,7 +1336,7 @@ function Debloat-TelemetryServices {
             Set-Service  -Name $svcName -StartupType Disabled -ErrorAction Stop
             Write-StatusLine "Disabled: $svcName" 'OK'
         } catch {
-            Write-StatusLine "Failed: $svcName — $($_.Exception.Message)" 'WARN'
+            Write-StatusLine "Failed: $svcName - $($_.Exception.Message)" 'WARN'
         }
         Track-Action "Disabled service: $svcName"
     }
@@ -1392,15 +1393,6 @@ function Debloat-VisualPerformance {
         if (-not (Test-Path $regPath)) { New-Item $regPath -Force | Out-Null }
         Set-ItemProperty $regPath -Name VisualFXSetting -Value 2 -ErrorAction SilentlyContinue
 
-        # Disable specific effects via SystemParameters
-        Add-Type -TypeDefinition @"
-using System;
-using System.Runtime.InteropServices;
-public class WinAPI {
-    [DllImport("user32.dll")] public static extern bool SystemParametersInfo(uint uiAction, uint uiParam, ref uint pvParam, uint fWinIni);
-    [DllImport("user32.dll")] public static extern bool SystemParametersInfo(uint uiAction, uint uiParam, string pvParam, uint fWinIni);
-}
-"@ -ErrorAction SilentlyContinue
 
         Write-Host '  Performance mode applied.' -ForegroundColor Green
         Write-Host '  Log out and back in or restart Explorer to see full effect.' -ForegroundColor DarkGray
