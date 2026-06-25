@@ -1779,6 +1779,11 @@ function Show-MainMenu {
         Write-Option -Key 'Q' -Description 'Quit' -KeyColor Red
         Write-Host ''
         Write-Divider
+        Write-Host '  Dev  : ' -NoNewline -ForegroundColor DarkGray
+        Write-Host 'Salah Eddine Medkour' -ForegroundColor Gray
+        Write-Host '  Star : ' -NoNewline -ForegroundColor DarkGray
+        Write-Host 'https://github.com/salahmed-ctrlz/99SAK-PowershellSwissArmyKnife' -ForegroundColor Cyan
+        Write-Divider
         Write-Host '  Ctrl+B: exit immediately   |   session: ' -NoNewline -ForegroundColor DarkGray
         Write-Host $script:SessionID -ForegroundColor DarkGray
         Write-Host ''
