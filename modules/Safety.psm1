@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Safety.psm1 - Admin elevation, restore points, pre-flight checks for 99SAK v2
 #>
@@ -73,7 +73,7 @@ function Test-PreFlight {
     if ($ver.Major -ge 5) {
         Write-StatusLine ('PowerShell {0}.{1}' -f $ver.Major, $ver.Minor) 'OK'
     } else {
-        Write-StatusLine ('PowerShell {0}.{1} — version 5.1+ recommended' -f $ver.Major, $ver.Minor) 'WARN'
+        Write-StatusLine ('PowerShell {0}.{1} - version 5.1+ recommended' -f $ver.Major, $ver.Minor) 'WARN'
     }
 
     # Disk space on system drive

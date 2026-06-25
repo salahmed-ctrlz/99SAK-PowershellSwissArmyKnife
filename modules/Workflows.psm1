@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Workflows.psm1 - Guided multi-step safety workflows for 99SAK v2
     Each workflow: pre-flight check, auto restore point, animated steps,
@@ -66,7 +66,7 @@ function Invoke-HealthCheckWorkflow {
     $results = [System.Collections.ArrayList]@()
     $output  = [System.Collections.ArrayList]@()
 
-    Show-WorkflowBanner -Title $title -Subtitle 'Read-only diagnosis — no changes made to the system'
+    Show-WorkflowBanner -Title $title -Subtitle 'Read-only diagnosis - no changes made to the system'
 
     Write-Host '  This workflow collects system health data and generates a report.' -ForegroundColor DarkGray
     Write-Host '  No changes will be made.' -ForegroundColor DarkGray
@@ -112,7 +112,7 @@ function Invoke-HealthCheckWorkflow {
 
     # Step 3: SFC verify (non-destructive)
     Show-WorkflowStep 3 $total 'System file integrity (SFC /verifyonly)'
-    Write-Host '  Running — this may take a few minutes...' -ForegroundColor DarkGray
+    Write-Host '  Running - this may take a few minutes...' -ForegroundColor DarkGray
     try {
         $sfcOut = sfc /verifyonly 2>&1
         $sfcStr = ($sfcOut | Where-Object { $_ }) -join ' '
@@ -120,8 +120,8 @@ function Invoke-HealthCheckWorkflow {
             Write-StatusLine 'No integrity violations found' 'OK'
             $null = $results.Add([PSCustomObject]@{ Step=3; Name='SFC verify'; Status='OK'; Message='No integrity violations' })
         } else {
-            Write-StatusLine 'Integrity violations detected — run System Repair workflow' 'WARN'
-            $null = $results.Add([PSCustomObject]@{ Step=3; Name='SFC verify'; Status='WARN'; Message='Violations found — run System Repair' })
+            Write-StatusLine 'Integrity violations detected - run System Repair workflow' 'WARN'
+            $null = $results.Add([PSCustomObject]@{ Step=3; Name='SFC verify'; Status='WARN'; Message='Violations found - run System Repair' })
         }
         $null = $output.Add("SFC: $sfcStr")
     } catch {
@@ -138,7 +138,7 @@ function Invoke-HealthCheckWorkflow {
             Write-StatusLine 'Component store: healthy' 'OK'
             $null = $results.Add([PSCustomObject]@{ Step=4; Name='DISM check'; Status='OK'; Message='Component store healthy' })
         } else {
-            Write-StatusLine 'Component store may be corrupted — run System Repair workflow' 'WARN'
+            Write-StatusLine 'Component store may be corrupted - run System Repair workflow' 'WARN'
             $null = $results.Add([PSCustomObject]@{ Step=4; Name='DISM check'; Status='WARN'; Message='Possible corruption detected' })
         }
     } catch {
@@ -146,8 +146,8 @@ function Invoke-HealthCheckWorkflow {
         $null = $results.Add([PSCustomObject]@{ Step=4; Name='DISM check'; Status='WARN'; Message="$_" })
     }
 
-    # Step 5: RAM — check event log for memory errors
-    Show-WorkflowStep 5 $total 'Memory — event log check'
+    # Step 5: RAM - check event log for memory errors
+    Show-WorkflowStep 5 $total 'Memory - event log check'
     try {
         $memErrors = Get-WinEvent -FilterHashtable @{ LogName='System'; Id=@(1, 41, 1001); Level=@(1,2) } `
             -MaxEvents 10 -ErrorAction SilentlyContinue
@@ -243,7 +243,7 @@ function Invoke-SystemRepairWorkflow {
     $title   = 'Full System Repair'
     $results = [System.Collections.ArrayList]@()
 
-    Show-WorkflowBanner -Title $title -Subtitle 'SFC + DISM RestoreHealth + verify — low risk, may take 30+ minutes'
+    Show-WorkflowBanner -Title $title -Subtitle 'SFC + DISM RestoreHealth + verify - low risk, may take 30+ minutes'
     Test-PreFlight
     Write-Host ''
 
@@ -266,7 +266,7 @@ function Invoke-SystemRepairWorkflow {
     $sfcStr = ($sfcOut | Where-Object { $_ }) -join ' '
     $sfcOK  = $sfcStr -match 'did not find any integrity violations' -or
               $sfcStr -match 'successfully repaired'
-    Write-StatusLine $(if ($sfcOK) { 'SFC complete — no unfixable violations' } else { 'SFC found issues — running DISM to repair' }) $(if ($sfcOK) { 'OK' } else { 'WARN' })
+    Write-StatusLine $(if ($sfcOK) { 'SFC complete - no unfixable violations' } else { 'SFC found issues - running DISM to repair' }) $(if ($sfcOK) { 'OK' } else { 'WARN' })
     $null = $results.Add([PSCustomObject]@{ Step=2; Name='SFC';
         Status=$(if ($sfcOK) { 'OK' } else { 'WARN' });
         Message=$(if ($sfcOK) { 'No violations or repaired' } else { 'Issues found, DISM will repair' }) })
@@ -292,7 +292,7 @@ function Invoke-SystemRepairWorkflow {
     $sfcOut2 = sfc /verifyonly 2>&1
     $sfcStr2 = ($sfcOut2 | Where-Object { $_ }) -join ' '
     $sfcOK2  = $sfcStr2 -match 'did not find any integrity violations'
-    Write-StatusLine $(if ($sfcOK2) { 'System files verified — clean' } else { 'Some files may still need attention' }) $(if ($sfcOK2) { 'OK' } else { 'WARN' })
+    Write-StatusLine $(if ($sfcOK2) { 'System files verified - clean' } else { 'Some files may still need attention' }) $(if ($sfcOK2) { 'OK' } else { 'WARN' })
     $null = $results.Add([PSCustomObject]@{ Step=4; Name='SFC verify';
         Status=$(if ($sfcOK2) { 'OK' } else { 'WARN' });
         Message=$(if ($sfcOK2) { 'All system files verified clean' } else { 'Manual review may be needed' }) })
@@ -324,7 +324,7 @@ function Invoke-NetworkResetWorkflow {
     $snap    = $null
 
     Show-WorkflowBanner -Title $title -Subtitle 'Winsock + TCP/IP reset, DNS flush, adapter renew, connectivity test'
-    Write-Host '  Risk: Moderate — resets network stack. Reboot required.' -ForegroundColor Yellow
+    Write-Host '  Risk: Moderate - resets network stack. Reboot required.' -ForegroundColor Yellow
     Write-Host ''
     Test-PreFlight
     Write-Host ''
@@ -403,14 +403,14 @@ function Invoke-NetworkResetWorkflow {
         Write-StatusLine 'IP connectivity: OK (reached 8.8.8.8)' 'OK'
         $null = $results.Add([PSCustomObject]@{ Step=9; Name='IP connectivity'; Status='OK'; Message='8.8.8.8 reachable' })
     } else {
-        Write-StatusLine 'IP connectivity: FAILED — reboot and retry' 'ERROR'
-        $null = $results.Add([PSCustomObject]@{ Step=9; Name='IP connectivity'; Status='ERROR'; Message='8.8.8.8 not reachable — reboot required' })
+        Write-StatusLine 'IP connectivity: FAILED - reboot and retry' 'ERROR'
+        $null = $results.Add([PSCustomObject]@{ Step=9; Name='IP connectivity'; Status='ERROR'; Message='8.8.8.8 not reachable - reboot required' })
     }
     if ($pingDNS) {
         Write-StatusLine 'DNS resolution: OK (google.com resolved)' 'OK'
         $null = $results.Add([PSCustomObject]@{ Step=9; Name='DNS resolution'; Status='OK'; Message='www.google.com resolved' })
     } else {
-        Write-StatusLine 'DNS resolution: FAILED — may resolve after reboot' 'WARN'
+        Write-StatusLine 'DNS resolution: FAILED - may resolve after reboot' 'WARN'
         $null = $results.Add([PSCustomObject]@{ Step=9; Name='DNS resolution'; Status='WARN'; Message='Could not resolve www.google.com' })
     }
 
@@ -436,7 +436,7 @@ function Invoke-MalwareTriage {
     $results = [System.Collections.ArrayList]@()
     $output  = [System.Collections.ArrayList]@()
 
-    Show-WorkflowBanner -Title $title -Subtitle 'Startup, ports, hosts, unsigned processes, Defender scan — mostly read-only'
+    Show-WorkflowBanner -Title $title -Subtitle 'Startup, ports, hosts, unsigned processes, Defender scan - mostly read-only'
 
     $ans = Read-InputWithBossKey 'Start triage? (Y/N)'
     if ($ans.ToUpper() -ne 'Y') { return }
@@ -462,7 +462,7 @@ function Invoke-MalwareTriage {
             $null = $output.Add("Startup: $s")
         }
         Write-StatusLine ("{0} startup entries found" -f $startups.Count) 'INFO'
-        $null = $results.Add([PSCustomObject]@{ Step=1; Name='Startup entries'; Status='INFO'; Message="$($startups.Count) entries found — review above" })
+        $null = $results.Add([PSCustomObject]@{ Step=1; Name='Startup entries'; Status='INFO'; Message="$($startups.Count) entries found - review above" })
     } catch {
         Write-StatusLine "Failed to read startup entries: $_" 'WARN'
         $null = $results.Add([PSCustomObject]@{ Step=1; Name='Startup entries'; Status='WARN'; Message="$_" })
@@ -493,7 +493,7 @@ function Invoke-MalwareTriage {
     }
 
     # Step 3: Hosts file check
-    Show-WorkflowStep 3 $total 'Hosts file — unauthorized entries'
+    Show-WorkflowStep 3 $total 'Hosts file - unauthorized entries'
     try {
         $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
         $entries   = Get-Content $hostsPath | Where-Object { $_ -notmatch '^\s*#' -and $_.Trim() -ne '' }
@@ -502,7 +502,7 @@ function Invoke-MalwareTriage {
                 Write-Host ("  {0}" -f $e) -ForegroundColor Gray
                 $null = $output.Add("Hosts: $e")
             }
-            Write-StatusLine ("{0} active hosts file entry/entries — review above" -f $entries.Count) 'WARN'
+            Write-StatusLine ("{0} active hosts file entry/entries - review above" -f $entries.Count) 'WARN'
             $null = $results.Add([PSCustomObject]@{ Step=3; Name='Hosts file'; Status='WARN'; Message="$($entries.Count) active entries" })
         } else {
             Write-StatusLine 'Hosts file has no active entries' 'OK'
@@ -672,7 +672,7 @@ function Invoke-SafetyBackupWorkflow {
             Sort-Object DisplayName
         $progs | Format-Table -AutoSize | Out-File $progPath -Encoding UTF8 -Force
         Write-StatusLine ("Programs list saved: {0}  ({1} items)" -f $progPath, $progs.Count) 'OK'
-        $null = $results.Add([PSCustomObject]@{ Step=4; Name='Programs list'; Status='OK'; Message="$($progs.Count) programs — $progPath" })
+        $null = $results.Add([PSCustomObject]@{ Step=4; Name='Programs list'; Status='OK'; Message="$($progs.Count) programs - $progPath" })
         $null = $saved.Add($progPath)
     } catch {
         Write-StatusLine "Programs list failed: $_" 'WARN'

@@ -15,25 +15,19 @@
 param([switch]$SelfTest)
 
 # ---------------------------------------------------------------------------
-# Bootstrap — dot-source modules
+# Bootstrap - dot-source modules
 # ---------------------------------------------------------------------------
 
 $script:RootDir = $PSScriptRoot
 
-function Import-Module99 {
-    param([string]$Name)
+foreach ($Name in @('UI.psm1', 'Logging.psm1', 'Safety.psm1', 'Workflows.psm1')) {
     $path = Join-Path $script:RootDir "modules\$Name"
     if (Test-Path $path) {
-        . $path
+        Import-Module $path -DisableNameChecking
     } else {
         Write-Host ("  [WARN] Module not found: {0}" -f $path) -ForegroundColor Yellow
     }
 }
-
-Import-Module99 'UI.psm1'
-Import-Module99 'Logging.psm1'
-Import-Module99 'Safety.psm1'
-Import-Module99 'Workflows.psm1'
 
 # ---------------------------------------------------------------------------
 # Global session state
@@ -1838,7 +1832,7 @@ function New-DesktopShortcut {
         Write-Host '  Desktop shortcut created: 99SAK.lnk' -ForegroundColor DarkGray
         Log-Event 'Created desktop shortcut' 'INFO'
     } catch {
-        # Non-critical — silently skip if shortcut creation fails
+        # Non-critical - silently skip if shortcut creation fails
         Log-Event "Shortcut creation failed: $_" 'WARN'
     }
 }
@@ -1908,10 +1902,10 @@ function Invoke-SelfTest {
 
     Write-Divider
     if ($pass) {
-        Write-Host '  PASS — all critical checks passed.' -ForegroundColor Green
+        Write-Host '  PASS - all critical checks passed.' -ForegroundColor Green
         exit 0
     } else {
-        Write-Host '  FAIL — one or more checks failed.' -ForegroundColor Red
+        Write-Host '  FAIL - one or more checks failed.' -ForegroundColor Red
         exit 1
     }
 }
