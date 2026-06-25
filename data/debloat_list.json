@@ -1,0 +1,79 @@
+{
+  "apps": [
+    { "name": "Xbox Game Bar",             "packageName": "Microsoft.XboxGamingOverlay",     "risk": "Low",    "category": "Xbox"         },
+    { "name": "Xbox Identity Provider",    "packageName": "Microsoft.XboxIdentityProvider",  "risk": "Low",    "category": "Xbox"         },
+    { "name": "Xbox Speech To Text",       "packageName": "Microsoft.XboxSpeechToTextOverlay","risk": "Low",   "category": "Xbox"         },
+    { "name": "Xbox TCUI",                 "packageName": "Microsoft.Xbox.TCUI",             "risk": "Low",    "category": "Xbox"         },
+    { "name": "Xbox Game Overlay",         "packageName": "Microsoft.XboxGameOverlay",        "risk": "Low",    "category": "Xbox"         },
+    { "name": "Candy Crush Saga",          "packageName": "king.com.CandyCrushSaga",          "risk": "Low",    "category": "Games"        },
+    { "name": "Candy Crush Friends",       "packageName": "king.com.CandyCrushFriendsSaga",  "risk": "Low",    "category": "Games"        },
+    { "name": "Bubble Witch 3",            "packageName": "king.com.BubbleWitch3Saga",        "risk": "Low",    "category": "Games"        },
+    { "name": "Microsoft Solitaire",       "packageName": "Microsoft.MicrosoftSolitaireCollection","risk": "Low","category": "Games"      },
+    { "name": "Clipchamp",                 "packageName": "Clipchamp.Clipchamp",              "risk": "Low",    "category": "Productivity" },
+    { "name": "Microsoft News",            "packageName": "Microsoft.BingNews",               "risk": "Low",    "category": "Productivity" },
+    { "name": "Microsoft Weather",         "packageName": "Microsoft.BingWeather",            "risk": "Low",    "category": "Productivity" },
+    { "name": "Microsoft Maps",            "packageName": "Microsoft.WindowsMaps",            "risk": "Low",    "category": "Productivity" },
+    { "name": "Bing Finance",              "packageName": "Microsoft.BingFinance",            "risk": "Low",    "category": "Productivity" },
+    { "name": "Bing Sports",               "packageName": "Microsoft.BingSports",             "risk": "Low",    "category": "Productivity" },
+    { "name": "Mixed Reality Portal",      "packageName": "Microsoft.MixedReality.Portal",   "risk": "Low",    "category": "Productivity" },
+    { "name": "3D Viewer",                 "packageName": "Microsoft.Microsoft3DViewer",      "risk": "Low",    "category": "Productivity" },
+    { "name": "Feedback Hub",              "packageName": "Microsoft.WindowsFeedbackHub",     "risk": "Low",    "category": "System"       },
+    { "name": "Get Help",                  "packageName": "Microsoft.GetHelp",                "risk": "Low",    "category": "System"       },
+    { "name": "Microsoft Tips",            "packageName": "Microsoft.Getstarted",             "risk": "Low",    "category": "System"       },
+    { "name": "Cortana",                   "packageName": "Microsoft.549981C3F5F10",          "risk": "Low",    "category": "System"       },
+    { "name": "Skype",                     "packageName": "Microsoft.SkypeApp",               "risk": "Low",    "category": "Communication"},
+    { "name": "Teams (consumer)",          "packageName": "MicrosoftTeams",                   "risk": "Low",    "category": "Communication"},
+    { "name": "Groove Music",              "packageName": "Microsoft.ZuneMusic",              "risk": "Low",    "category": "Media"        },
+    { "name": "Movies & TV",              "packageName": "Microsoft.ZuneVideo",              "risk": "Low",    "category": "Media"        },
+    { "name": "OneDrive",                  "packageName": "Microsoft.OneDriveSync",           "risk": "Medium", "category": "Cloud"        }
+  ],
+  "services": [
+    { "name": "DiagTrack",        "displayName": "Connected User Experiences and Telemetry", "risk": "Low"    },
+    { "name": "dmwappushservice", "displayName": "WAP Push Message Routing Service",          "risk": "Low"    },
+    { "name": "SysMain",          "displayName": "SysMain (Superfetch)",                      "risk": "Low"    },
+    { "name": "WSearch",          "displayName": "Windows Search Indexing",                   "risk": "Medium" },
+    { "name": "XblAuthManager",   "displayName": "Xbox Live Auth Manager",                    "risk": "Low"    },
+    { "name": "XblGameSave",      "displayName": "Xbox Live Game Save",                       "risk": "Low"    },
+    { "name": "XboxNetApiSvc",    "displayName": "Xbox Live Networking Service",               "risk": "Low"    },
+    { "name": "MapsBroker",       "displayName": "Downloaded Maps Manager",                   "risk": "Low"    },
+    { "name": "RetailDemo",       "displayName": "Retail Demo Service",                       "risk": "Low"    }
+  ],
+  "registryTweaks": [
+    {
+      "name":        "Disable Edge PDF takeover",
+      "description": "Stops Edge from auto-opening PDF files",
+      "risk":        "Low",
+      "path":        "HKCU:\\Software\\Classes\\AppXd4nrz8ff68srnhf9t5a8sbjyar1cr723",
+      "key":         "NoOpenWith",
+      "value":       "",
+      "type":        "String"
+    },
+    {
+      "name":        "Disable Bing search in Start Menu",
+      "description": "Prevents web results from appearing in Start search",
+      "risk":        "Low",
+      "path":        "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Search",
+      "key":         "BingSearchEnabled",
+      "value":       0,
+      "type":        "DWORD"
+    },
+    {
+      "name":        "Disable Cortana search box",
+      "description": "Hides Cortana/search box from taskbar",
+      "risk":        "Low",
+      "path":        "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Search",
+      "key":         "SearchboxTaskbarMode",
+      "value":       0,
+      "type":        "DWORD"
+    },
+    {
+      "name":        "Disable Activity History",
+      "description": "Prevents Windows from tracking opened files and apps",
+      "risk":        "Low",
+      "path":        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+      "key":         "EnableActivityFeed",
+      "value":       0,
+      "type":        "DWORD"
+    }
+  ]
+}
