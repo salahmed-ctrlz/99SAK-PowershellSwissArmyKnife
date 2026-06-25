@@ -38,6 +38,8 @@ $script:SessionID     = [System.Guid]::NewGuid().ToString().Substring(0, 8).ToUp
 $script:ActionCount   = 0
 $script:ErrorCount    = 0
 $script:CmdHistory    = [System.Collections.ArrayList]@()
+$script:ConsecutiveInvalidCount = 0
+$script:TaskCount = 0
 
 Initialize-Logging -ScriptRoot $script:RootDir -SessionID $script:SessionID
 
@@ -1743,13 +1745,13 @@ function Show-CategoryMenu {
             Write-Host ''
             & $matched.Fn
             $script:ActionCount++
+            Handle-PostTask
             Write-Host ''
             Write-Divider
             $cont = (Read-InputWithBossKey 'Enter to continue in this category, B to return').ToUpper()
             if ($cont -eq 'B') { return }
         } else {
-            Write-Host '  Invalid choice.' -ForegroundColor DarkGray
-            Start-Sleep -Milliseconds 400
+            Handle-InvalidChoice
         }
 
     } while ($true)
@@ -1762,6 +1764,9 @@ function Show-CategoryMenu {
 function Show-MainMenu {
     while ($true) {
         Show-Header
+        Write-Host '  Dev  : Salah Eddine Medkour' -ForegroundColor Gray
+        Write-Host '  Star : https://github.com/salahmed-ctrlz/99SAK-PowershellSwissArmyKnife' -ForegroundColor Cyan
+        Write-Divider
         Write-Host '  Main Menu' -ForegroundColor White
         Write-Host ''
         Write-Option -Key 'A' -Description 'Networking'           -Badge '[30 tools]'
@@ -1778,11 +1783,6 @@ function Show-MainMenu {
         Write-Host ''
         Write-Option -Key 'Q' -Description 'Quit' -KeyColor Red
         Write-Host ''
-        Write-Divider
-        Write-Host '  Dev  : ' -NoNewline -ForegroundColor DarkGray
-        Write-Host 'Salah Eddine Medkour' -ForegroundColor Gray
-        Write-Host '  Star : ' -NoNewline -ForegroundColor DarkGray
-        Write-Host 'https://github.com/salahmed-ctrlz/99SAK-PowershellSwissArmyKnife' -ForegroundColor Cyan
         Write-Divider
         Write-Host '  Ctrl+B: exit immediately   |   session: ' -NoNewline -ForegroundColor DarkGray
         Write-Host $script:SessionID -ForegroundColor DarkGray
@@ -1809,8 +1809,7 @@ function Show-MainMenu {
                 return
             }
             default {
-                Write-Host '  Invalid choice.' -ForegroundColor DarkGray
-                Start-Sleep -Milliseconds 400
+                Handle-InvalidChoice
             }
         }
     }
@@ -1912,6 +1911,107 @@ function Invoke-SelfTest {
     } else {
         Write-Host '  FAIL - one or more checks failed.' -ForegroundColor Red
         exit 1
+    }
+}
+
+# ===========================================================================
+# EASTER EGGS & FUN STUFF
+# ===========================================================================
+
+function Show-RandomQuote {
+    $quotes = @(
+        'It works on my machine.',
+        'Never underestimate the bandwidth of a station wagon full of tapes.',
+        'There is no place like 127.0.0.1.',
+        'To err is human; to really foul things up you need a computer.',
+        'Have you tried turning it off and on again?',
+        'DNS: The root of all problems.',
+        'There are two hard things in computer science: cache invalidation and naming things.',
+        ' rm -rf / laughter in the distance ',
+        'Out of memory? Just add more RAM.',
+        'Works in prod? Ship it!'
+    )
+    $q = Get-Random -InputObject $quotes
+    Write-Host ''
+    Write-Host ('Quote: "{0}"' -f $q) -ForegroundColor DarkCyan
+    Write-Host ''
+}
+
+function Show-FakeProgressBar {
+    Clear-Host
+    Write-Host 'Deleting C:\Windows...' -ForegroundColor Red
+    for ($i=0; $i -le 100; $i+=7) {
+        Write-Progress -Activity 'System Cleanup' -Status ("Removing critical files... {0}%" -f $i) -PercentComplete $i
+        Start-Sleep -Milliseconds (Get-Random -Minimum 50 -Maximum 200)
+    }
+    Write-Progress -Activity 'System Cleanup' -Completed -Status 'Done'
+    Write-Host ''
+    Write-Host 'Just kidding!' -ForegroundColor Green
+    Write-Host ''
+    Read-Host 'Press Enter to return'
+}
+
+function Show-InvalidChoiceMessage {
+    Clear-Host
+    try {
+        $raw = $Host.UI.RawUI
+        $width = $raw.WindowSize.Width
+        $height = $raw.WindowSize.Height
+        if (-not $width -or $width -le 0) { $width = 80 }
+        if (-not $height -or $height -le 0) { $height = 25 }
+    } catch {
+        $raw = $null
+        $width = 80
+        $height = 25
+    }
+
+    $lines = @(
+        " ______________________________",
+        "|                              |",
+        "|    Achievement Unlocked!     |",
+        "|  You found 99 ways to break  |",
+        "|  ...I mean, fix your system. |",
+        "|______________________________|"
+    )
+
+    $topPad = [Math]::Max(0, [Math]::Floor(($height - $lines.Count - 2) / 2))
+    for ($i = 0; $i -lt $topPad; $i++) { Write-Host "" }
+
+    foreach ($line in $lines) {
+        $pad = [Math]::Max(0, [Math]::Floor(($width - $line.Length) / 2))
+        Write-Host (' ' * $pad) -NoNewline
+        Write-Host $line
+    }
+
+    $footer = "click any button to return ...."
+    $footerPad = [Math]::Max(0, [Math]::Floor(($width - $footer.Length) / 2))
+    try {
+        if ($raw) {
+            $raw.CursorPosition = New-Object System.Management.Automation.Host.Coordinates(0, [Math]::Max(0, $height - 1))
+        }
+    } catch {}
+    Write-Host ((' ' * $footerPad) + $footer) -ForegroundColor DarkGray
+
+    try {
+        if ($raw) { $null = $raw.ReadKey('NoEcho,IncludeKeyDown') }
+        else { $null = [System.Console]::ReadKey($true) }
+    } catch { Start-Sleep -Milliseconds 500 }
+}
+
+function Handle-InvalidChoice {
+    $script:ConsecutiveInvalidCount++
+    Show-InvalidChoiceMessage
+    if ($script:ConsecutiveInvalidCount -ge 2) {
+        $script:ConsecutiveInvalidCount = 0
+        Show-FakeProgressBar
+    }
+}
+
+function Handle-PostTask {
+    $script:TaskCount++
+    $script:ConsecutiveInvalidCount = 0
+    if (($script:TaskCount % 2) -eq 0) {
+        Show-RandomQuote
     }
 }
 
