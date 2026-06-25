@@ -4,11 +4,15 @@
     Portable, admin-elevated toolkit for IT professionals, help desk, and network engineers.
     Zero dependencies. Works on any Windows 10/11 PC.
 
+.PARAMETER SelfTest
+    Run a non-destructive smoke test (no system changes). Returns exit code 0 on pass.
+
 .NOTES
     Launch via 99SAK.bat (double-click, auto-elevates to Administrator).
-    Boss Key: Ctrl+B — exits immediately from any prompt.
+    Boss Key: Ctrl+B -- exits immediately from any prompt.
     Author: Salahuddin (https://github.com/salahmed-ctrlz)
 #>
+param([switch]$SelfTest)
 
 # ---------------------------------------------------------------------------
 # Bootstrap — dot-source modules
@@ -1822,8 +1826,114 @@ function Show-MainMenu {
 }
 
 # ===========================================================================
+# SHORTCUT CREATION
+# ===========================================================================
+
+function New-DesktopShortcut {
+    $lnkPath = Join-Path ([Environment]::GetFolderPath('Desktop')) '99SAK.lnk'
+    if (Test-Path $lnkPath) { return }   # already exists
+    try {
+        $batPath = Join-Path $script:RootDir '99SAK.bat'
+        if (-not (Test-Path $batPath)) { return }
+        $shell  = New-Object -ComObject WScript.Shell
+        $lnk    = $shell.CreateShortcut($lnkPath)
+        $lnk.TargetPath       = $batPath
+        $lnk.WorkingDirectory = $script:RootDir
+        $lnk.Description      = '99SAK - PowerShell Swiss Army Knife'
+        $lnk.WindowStyle      = 1
+        $lnk.Save()
+        [System.Runtime.InteropServices.Marshal]::ReleaseComObject($shell) | Out-Null
+        Write-Host '  Desktop shortcut created: 99SAK.lnk' -ForegroundColor DarkGray
+        Log-Event 'Created desktop shortcut' 'INFO'
+    } catch {
+        # Non-critical — silently skip if shortcut creation fails
+        Log-Event "Shortcut creation failed: $_" 'WARN'
+    }
+}
+
+# ===========================================================================
+# SELF-TEST MODE
+# ===========================================================================
+
+function Invoke-SelfTest {
+    Write-Host ''
+    Write-Host ' 99SAK v2.0  Self-Test Mode' -ForegroundColor Cyan
+    Write-Divider
+    $pass = $true
+
+    # Test 1: Modules loaded
+    $moduleFns = @('Write-Divider','Log-Event','Is-Admin','New-SafetyRestorePoint')
+    foreach ($fn in $moduleFns) {
+        if (Get-Command $fn -ErrorAction SilentlyContinue) {
+            Write-StatusLine "Function available: $fn" 'OK'
+        } else {
+            Write-StatusLine "Function MISSING: $fn" 'ERROR'
+            $pass = $false
+        }
+    }
+
+    # Test 2: Data files
+    foreach ($f in @('bad_ports.json','debloat_list.json')) {
+        $p = Join-Path $script:RootDir "data\$f"
+        if (Test-Path $p) {
+            $parsed = Get-Content $p -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+            if ($parsed) {
+                Write-StatusLine "Data file OK: $f" 'OK'
+            } else {
+                Write-StatusLine "Data file parse failed: $f" 'ERROR'
+                $pass = $false
+            }
+        } else {
+            Write-StatusLine "Data file missing: $f" 'ERROR'
+            $pass = $false
+        }
+    }
+
+    # Test 3: Log engine
+    try {
+        Log-Event 'SelfTest log write' 'DEBUG'
+        Write-StatusLine 'Log engine: write OK' 'OK'
+    } catch {
+        Write-StatusLine "Log engine failed: $_" 'ERROR'
+        $pass = $false
+    }
+
+    # Test 4: Command index populated
+    $count = $script:CommandIndex.Count
+    if ($count -gt 100) {
+        Write-StatusLine "Command index: $count commands registered" 'OK'
+    } else {
+        Write-StatusLine "Command index seems incomplete: $count commands" 'WARN'
+    }
+
+    # Test 5: Console width readable
+    $w = Get-ConsoleWidth
+    if ($w -gt 0) {
+        Write-StatusLine "Console width: $w chars" 'OK'
+    } else {
+        Write-StatusLine 'Could not read console width' 'WARN'
+    }
+
+    Write-Divider
+    if ($pass) {
+        Write-Host '  PASS — all critical checks passed.' -ForegroundColor Green
+        exit 0
+    } else {
+        Write-Host '  FAIL — one or more checks failed.' -ForegroundColor Red
+        exit 1
+    }
+}
+
+# ===========================================================================
 # ENTRY POINT
 # ===========================================================================
 
+if ($SelfTest) {
+    # Self-test does not require elevation
+    Invoke-SelfTest
+    return
+}
+
 Ensure-Admin
+New-DesktopShortcut
 Show-MainMenu

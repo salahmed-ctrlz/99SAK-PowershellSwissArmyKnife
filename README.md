@@ -17,6 +17,12 @@ That is it. No PowerShell execution policy changes required for normal use — t
 PowerShell -NoProfile -ExecutionPolicy Bypass -File .\99SAK.ps1
 ```
 
+**Self-test (CI / smoke test — no system changes):**
+```powershell
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\99SAK.ps1 -SelfTest
+```
+Returns exit code `0` on pass, `1` on fail. Safe to run without elevation.
+
 ---
 
 ## Navigation
@@ -201,6 +207,12 @@ All module files must remain in the `modules\` subfolder alongside `99SAK.ps1`. 
 ---
 
 ## Changelog
+
+### v2.2
+- Desktop shortcut (`99SAK.lnk`) auto-created on first launch — pinnable to taskbar
+- Self-test mode: `.\99SAK.ps1 -SelfTest` — smoke tests modules, data files, log engine, command index without touching the system
+- `.gitignore` added — Logs directory excluded from version control
+- Docs: self-test usage added to README
 
 ### v2.1
 - Safety Workflows fully implemented (5 guided workflows)

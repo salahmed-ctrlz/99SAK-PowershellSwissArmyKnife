@@ -1,0 +1,6 @@
+# Logs directory — auto-created at runtime, not committed
+Logs/
+
+# OS artifacts
+Thumbs.db
+.DS_Store
